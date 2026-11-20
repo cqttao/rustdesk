@@ -36,6 +36,26 @@ flutter_build_dir_2 = f'flutter/{flutter_build_dir}'
 skip_cargo = False
 
 
+# ---- 豆包定制：把自建服务器与公钥写进 hbb_common 的 config.rs（构建前） ----
+def _bake_custom_server():
+    import os as _os
+    path = _os.path.join("libs", "hbb_common", "src", "config.rs")
+    if not _os.path.exists(path):
+        print("bake: config.rs not found, skip")
+        return
+    with open(path, encoding="utf-8") as f:
+        src = f.read()
+    old_server = "rs-ny.rustdesk.com"
+    old_key = "OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw="
+    before = src.count(old_server), src.count(old_key)
+    src = src.replace(old_server, "nasttao.xyz").replace(old_key, "vVLAI+nSWnzo3tXY5EWkdsLIlmjB7wNPz3UY5JtBVU4=")
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(src)
+    print("bake: matched server/key = %s, wrote custom server nasttao.xyz" % (before,))
+
+_bake_custom_server()
+# ---- 豆包定制结束 ----
+
 def get_deb_arch() -> str:
     custom_arch = os.environ.get("DEB_ARCH")
     if custom_arch is None:
