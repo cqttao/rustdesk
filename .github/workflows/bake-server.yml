@@ -1,0 +1,23 @@
+name: bake-server
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  bake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch self-hosted server into config.rs
+        run: |
+          f=libs/hbb_common/src/config.rs
+          sed -i 's|rs-ny\.rustdesk\.com|nasttao.xyz|g' "$f"
+          sed -i 's|OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw=|vVLAI+nSWnzo3tXY5EWkdsLIlmjB7wNPz3UY5JtBVU4=|g' "$f"
+          echo "custom server hits: $(grep -c 'nasttao.xyz' "$f" || true)"
+      - name: Commit
+        run: |
+          git config user.name "doubao-bake"
+          git config user.email "noreply@users.noreply.github.com"
+          git add libs/hbb_common/src/config.rs
+          git commit -m "bake self-hosted server and key into config.rs" || true
+          git push
